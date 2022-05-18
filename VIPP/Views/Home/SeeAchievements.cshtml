@@ -1,0 +1,19 @@
+﻿@{
+    ViewBag.Title = "Achievements Page";
+}
+
+@helper CreateUsersDoneLinkList(List<VIPP.Models.UserDone> usersDone)
+{
+    <h4>Успехи участников:</h4>
+    <ul>
+        @foreach (var userDone in usersDone)
+        {
+            <li>@Html.ActionLink(userDone.UserName, "SeeAchievementsOfUser", new { activeDay = ViewBag.CurrDay, currDay = ViewBag.CurrDay, userId = userDone.UserId, name = userDone.UserName })</li>
+        }
+    </ul>
+}
+
+@if (ViewBag.UsersDone != null && ViewBag.UsersDone.Count != 0)
+{
+    @CreateUsersDoneLinkList(ViewBag.UsersDone)
+}
