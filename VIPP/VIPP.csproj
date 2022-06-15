@@ -380,6 +380,7 @@
     <Content Include="Views\Home\AddAchievement.cshtml" />
     <Content Include="Views\Home\SeeAchievements.cshtml" />
     <Content Include="Views\Home\SeeAchievementsOfUser.cshtml" />
+    <Content Include="Views\Admin\AddParticipants.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

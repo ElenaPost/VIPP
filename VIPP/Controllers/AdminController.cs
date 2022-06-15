@@ -15,6 +15,7 @@ namespace VIPP.Controllers
 
 		ApplicationDbContext _context = ApplicationDbContext.Create();
 
+		[Authorize(Roles = "admin")]
 		public ActionResult Index()
 		{
 			if (ModelState.IsValid)
@@ -26,6 +27,7 @@ namespace VIPP.Controllers
 		}
 
 		[HttpGet]
+		[Authorize(Roles = "admin")]
 		public ActionResult AddMarathon()
 		{
 			return PartialView();
@@ -44,6 +46,7 @@ namespace VIPP.Controllers
 		}
 
 		[HttpGet]
+		[Authorize(Roles = "admin")]
 		public ActionResult SetMarathonDate()
 		{
 			ViewBag.Marathons = new SelectList(_context.Marathons.ToList(), "Id", "Name");
@@ -64,6 +67,27 @@ namespace VIPP.Controllers
 				DateTime date = new DateTime(_marathonDate.Year, _marathonDate.Month, _marathonDate.Day);
 				MarathonDate marathonDate = new MarathonDate { Id = id, MarathonId = _marathonDate.MarathonId, StartDate = date };
 				_context.MarathonDates.Add(marathonDate);
+				await _context.SaveChangesAsync();
+			}
+			return RedirectToAction("Index");
+		}
+
+		[HttpGet]
+		[Authorize(Roles = "admin")]
+		public ActionResult AddParticipants()
+		{
+			ViewBag.MarathonDates = new SelectList(_context.MarathonDates.ToList(), "Id", "StartDate");
+			ViewBag.Users = new SelectList(_context.Users.ToList(), "Id", "UserName");
+			return PartialView();
+		}
+
+		[HttpPost]
+		public async Task<ActionResult> AddParticipants(Participant _participant)
+		{
+			if(ModelState.IsValid)
+			{
+				Participant participant = new Participant { Id = Guid.NewGuid(), UserId = _participant.UserId, MarathonDateId = _participant.MarathonDateId };
+				_context.Participants.Add(participant);
 				await _context.SaveChangesAsync();
 			}
 			return RedirectToAction("Index");
