@@ -3,3 +3,4 @@ packages
 .vs
 *.dll
 VIPP/bin
+VIPP/App_Data
