@@ -12,6 +12,11 @@
     <div class="col-md-3 ml-md-auto">@Html.ActionLink("Назначить дату", "SetMarathonDate", null, null, new { @class = "showDialogContent btn-block btn btn-primary btn-sm", role = "button" })</div>
     <div class="col-md-3 ml-md-auto">@Html.ActionLink("Добавить марафон", "AddMarathon", null, null, new { @class = "showDialogContent btn-block btn btn-primary btn-sm", role = "button" })</div>
     <div class="col-md-3 ml-md-auto">@Html.ActionLink("Добавить участника", "AddParticipants", null, null, new { @class = "showDialogContent btn-block btn btn-primary btn-sm", role = "button" })</div>
+    <div class="modal-footer row pr-md-0 btn-send btn-clear">
+        <div class="col-md-offset-6 col-md-6 px-md-0">
+            <button type="button" class="btn btn-primary btn-sm">Очистить данные о достижениях</button>
+        </div>
+    </div>
 </div>
 
 @section scripts
@@ -61,6 +66,14 @@
                     if (!emptyInput) {
                         form.submit();
                     }
+                });
+            });
+
+            $(".btn-clear").on("click", function (e) {
+                e.preventDefault();
+                $.ajax({
+                    type: "POST",
+                    url: "/Admin/ClearSelfEstimationCheckList"
                 });
             });
         });

@@ -213,23 +213,26 @@ namespace VIPP.Controllers
 			using (var _context = ApplicationDbContext.Create())
 			{
 				List<UserDone> usersDone = new List<UserDone>();
+				List<MarathonParticipant> marathonParticipants = new List<MarathonParticipant>();
 				var participants = _context.Participants.Where(p => p.MarathonDateId == marathonDateId).ToList();
 				var currUsers = new List<ApplicationUser>();
 				foreach(var participant in participants)
 				{
 					var userId = participant.UserId;
 					var user = _context.Users.Find(userId);
+					marathonParticipants.Add(new MarathonParticipant { UserId = user.Id, UserName = user.UserName });
 					string SQLRqstAchievements = "select count(*) from SelfEstimationCheckLists where UserId = N'" + userId + "' AND Day = " + currDay;
 					string SQLRqstResume = "select count(*) from SelfEstimationResumeFromUsers where UserId = N'" + userId + "' AND Day = " + currDay;
 					int completeAch = _context.Database.SqlQuery<int>(SQLRqstAchievements).First();
 					int completeR = _context.Database.SqlQuery<int>(SQLRqstResume).First();
-					bool complete = (completeAch == 10 && completeR == 1) ? true : false;
+					bool complete = (completeAch == 100 && completeR == 1) ? true : false;
 					if(complete)
 					{
 						usersDone.Add(new UserDone { UserId = user.Id, UserName = user.UserName });
 					}
 				}
 				ViewBag.UsersDone = usersDone;
+				ViewBag.MarathonParticipants = marathonParticipants;
 			}
 			ViewBag.CurrDay = currDay;
 			return View();

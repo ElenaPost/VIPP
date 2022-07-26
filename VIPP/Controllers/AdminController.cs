@@ -92,5 +92,15 @@ namespace VIPP.Controllers
 			}
 			return RedirectToAction("Index");
 		}
+
+		[HttpPost]
+		public ActionResult ClearSelfEstimationCheckList()
+		{
+			_context.Achievements.RemoveRange(_context.Achievements.ToList());
+			_context.Resumes.RemoveRange(_context.Resumes.ToList());
+			_context.Feedbacks.RemoveRange(_context.Feedbacks.ToList());
+			_context.SaveChanges();
+			return RedirectToAction("Index");
+		}
 	}
 }

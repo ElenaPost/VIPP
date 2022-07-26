@@ -13,6 +13,14 @@
     </ul>
 }
 
+<h4>Участники:</h4>
+<ul>
+    @foreach (var marathonParticipant in ViewBag.MarathonParticipants)
+    {
+        <li>@marathonParticipant.UserName</li>
+    }
+</ul>
+
 @if (ViewBag.UsersDone != null && ViewBag.UsersDone.Count != 0)
 {
     @CreateUsersDoneLinkList(ViewBag.UsersDone)
