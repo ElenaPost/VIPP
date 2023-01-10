@@ -137,6 +137,7 @@
                     _data = {
                         userId: "@ViewBag.UserId",
                         day: activeDay,
+                        serialNumber: +inputId.next().text().match(/\d{1,}/),
                         achievement: achievement
                     }
                 }

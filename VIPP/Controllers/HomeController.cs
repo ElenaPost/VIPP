@@ -15,7 +15,6 @@ namespace VIPP.Controllers
 {
 	public class HomeController : Controller
 	{
-		static ApplicationDbContext _context = ApplicationDbContext.Create();
 
 		public async Task<ActionResult> Index()
 		{
@@ -114,7 +113,7 @@ namespace VIPP.Controllers
 			ViewBag.UserId = userId;
 			using(var _context = ApplicationDbContext.Create())
 			{
-				ViewBag.currUserAchievements = await _context.Achievements.Where(ach => ach.UserId == userId && ach.Day == activeDay).ToListAsync();
+				ViewBag.currUserAchievements = await _context.Achievements.Where(ach => ach.UserId == userId && ach.Day == activeDay).OrderBy(ach => ach.SerialNumber).ToListAsync();
 				//var resume = await _context.Resumes.Where(r => r.UserId == userId && r.Day == activeDay).FirstOrDefaultAsync();
 
 				var (id, resume) = GetResume(userId, activeDay, _context);
@@ -140,10 +139,10 @@ namespace VIPP.Controllers
 		}
 
 		[HttpPost]
-		public async Task<JsonResult> AddAchievement(string userId, int day, string achievement)
+		public async Task<JsonResult> AddAchievement(string userId, int day, int serialNumber, string achievement)
 		{
 			Guid achievementId = Guid.NewGuid();
-			SelfEstimationCheckList selfEstimationCheckList = new SelfEstimationCheckList { Id = achievementId, UserId = userId, Day = day, Achievement = achievement };
+			SelfEstimationCheckList selfEstimationCheckList = new SelfEstimationCheckList { Id = achievementId, UserId = userId, Day = day, SerialNumber = serialNumber, Achievement = achievement };
 			using(var _context = ApplicationDbContext.Create())
 			{
 				if (ModelState.IsValid)

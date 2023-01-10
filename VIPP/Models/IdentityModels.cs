@@ -63,6 +63,8 @@ namespace VIPP.Models
         public Guid Id { get; set; }
         public string UserId { get; set; }
         public int Day { get; set; }
+
+        public int SerialNumber { get; set; }
         public string Achievement { get; set; }
     }
 
