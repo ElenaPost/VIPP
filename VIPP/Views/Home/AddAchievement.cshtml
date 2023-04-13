@@ -40,7 +40,7 @@
             }
         </div>
         <div>
-            <div class="form-group row resume">
+            <div class="form-group row resume" style="display: none">
                 <div class="col-md-8">
                     <input id="Id" type="hidden" value="@(ViewBag.Id == Guid.Empty ? "" : ViewBag.Id)" />
                     <label class="control-label col-md-4 pl-md-0">Ваше резюме</label>
@@ -49,7 +49,7 @@
                 </div>
             </div>
 
-            <div class="modal-footer row pr-md-0 btn-send">
+            <div class="modal-footer row pr-md-0 btn-send" style="display:none">
                 <div class="col-md-offset-6 col-md-6 px-md-0">
                     <button type="button" class="btn btn-primary btn-sm">Отправить</button>
                 </div>
@@ -168,9 +168,11 @@
                 }
 
                 var divAchCount = $(".achievement").length;
+                var achIndex = $(".achievement").index($(this).parents("div.form-group:first"));
+                console.log($(".achievement").index($(this).parents("div.form-group:first")) + " - " + divAchCount);
 
                 if (divAchCount < 100) {
-                    if ($(".achievement").index($(this).parents("div.form-group:first")) == divAchCount - 2) {
+                    if (achIndex == divAchCount - 2) {
                         var divWrap = document.createElement("div");
                         divWrap.className = "form-group row achievement";
                         divWrap.innerHTML = '<div class="col-md-8">@Html.HiddenFor(model => model.Id)<label class="control-label col-md-4 pl-md-0">' + ++divAchCount + '. Я уже</label>@Html.EditorFor(model => model.Achievement, new { htmlAttributes = new { id = "AchievementNew", @class = "required form-control form-control-sm mr-md-0", placeholder = "достижение" } })<span class="required-field">Заполнение обязательно</span></div>';
@@ -182,23 +184,22 @@
                         });
                     }
                 }
-                else {
-                    $(".resume").show();
-                    $(".btn-send").show();
-                    $(".btn-send button").on("click", function (e) {
-                        clickHandler();
-                    });
+                else if (achIndex == divAchCount - 1) {
+                    showResume();
                 }
             }
 
-            //if ($(".achievement").length < 100) {//раскомментировать
-            //    //$(".resume").hide();
-            //    //$(".btn-send").hide();
-            //} else {
-            $(".btn-send button").on("click", function (e) {
+            if ($(".achievement").length == 100 && !$(".resume").is(":visible")) {
+                showResume();
+            }
+
+            function showResume() {
+                $(".resume").show();
+                $(".btn-send").show();
+                $(".btn-send button").on("click", function (e) {
                     clickHandler();
                 });
-            //}
+            }
 
             function clickHandler() {
                 var resumeIdField = $(".resume #Id");
@@ -230,7 +231,6 @@
                         }
                     });
                 }
-                $(".btn-send").hide();
             }
 
             $("ul.pagination a:contains(" + activeDay + ")").parent("li").addClass("active");

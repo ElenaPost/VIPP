@@ -52,7 +52,7 @@ namespace VIPP.Controllers
 											}
 											else
 											{
-												marathonLinks.Add(new MarathonLink { LinkText = $"{marathon.Name}, который стартовал {startDate}", ActionName = "AddAchievement", Day = currDate.Subtract(startDate).Days + 1, CurrUserId = userId });
+												marathonLinks.Add(new MarathonLink { LinkText = $"{marathon.Name}, который стартовал {startDate.ToShortDateString()}", ActionName = "AddAchievement", Day = currDate.Subtract(startDate).Days + 1, CurrUserId = userId });
 											}
 										}
 									}
@@ -93,7 +93,7 @@ namespace VIPP.Controllers
 						DateTime dateAfterEnd = startDate.AddDays(countDays);
 						if (currDate < dateAfterEnd && currDate >= startDate)
 						{
-							marathonLinks.Add(new MarathonLink { LinkText = $"{marathon.Name}, который стартовал {startDate}. Просмотреть успехи.", ActionName = "SeeAchievements", Day = currDate.Subtract(startDate).Days + 1, MarathonDateId = marathonDate.Id });
+							marathonLinks.Add(new MarathonLink { LinkText = $"{marathon.Name}, который стартовал {startDate.ToShortDateString()}. Просмотреть успехи.", ActionName = "SeeAchievements", Day = currDate.Subtract(startDate).Days + 1, MarathonDateId = marathonDate.Id });
 						}
 					}
 				}
@@ -119,12 +119,6 @@ namespace VIPP.Controllers
 				var (id, resume) = GetResume(userId, activeDay, _context);
 				ViewBag.Id = id;
 				ViewBag.Resume = resume;
-
-				//var feedback = await _context.Feedbacks.Where(r => r.UserId == userId && r.Day == activeDay).FirstOrDefaultAsync();
-				//if(feedback != nullSignalR
-				//{
-				//	ViewBag.Feedback = feedback.Feedback;
-				//}
 
 				var (id_, feedbackText) = GetFeedback(userId, activeDay, _context);
 				ViewBag.Feedback = feedbackText;
@@ -162,10 +156,12 @@ namespace VIPP.Controllers
 				return HttpNotFound();
 			}
 			Guid achievementId = Guid.Parse(id);
-			SelfEstimationCheckList selfEstimationCheckList = new SelfEstimationCheckList { Id = achievementId, UserId = userId, Day = day, Achievement = achievement};
+			//SelfEstimationCheckList selfEstimationCheckList = new SelfEstimationCheckList { Id = achievementId, UserId = userId, Day = day, SerialNumber = serialNumber, Achievement = achievement};
 			using (var _context = ApplicationDbContext.Create())
-			{
-				_context.Entry(selfEstimationCheckList).State = EntityState.Modified;
+            {
+				SelfEstimationCheckList selfEstimationCheckList = await _context.Achievements.FindAsync(achievementId);
+				selfEstimationCheckList.Achievement = achievement;
+                _context.Entry(selfEstimationCheckList).State = EntityState.Modified;
 				await _context.SaveChangesAsync();
 			}
 			return RedirectToAction("Index");
@@ -249,7 +245,7 @@ namespace VIPP.Controllers
 				ViewBag.Name = name;
 				if(activeDay == currDay)
 				{
-					List<SelfEstimationCheckList> achievements = _context.Achievements.Where(ach => ach.UserId == userId && ach.Day == currDay).ToList();
+					List<SelfEstimationCheckList> achievements = _context.Achievements.Where(ach => ach.UserId == userId && ach.Day == currDay).OrderBy(ach => ach.SerialNumber).ToList();
 					ViewBag.Achievements = achievements;
 				}
 

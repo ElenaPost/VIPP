@@ -13,15 +13,16 @@ namespace VIPP.Controllers
 	public class AdminController : Controller
 	{
 
-		ApplicationDbContext _context = ApplicationDbContext.Create();
-
 		[Authorize(Roles = "admin")]
-		public ActionResult Index()
+		public async Task<ActionResult> Index()
 		{
 			if (ModelState.IsValid)
 			{
-				var users = _context.Users.ToList();
-				return View(users);
+				using(var _context = ApplicationDbContext.Create())
+				{
+					var users = await _context.Users.ToListAsync();
+					return View(users);
+				}
 			}
 			return View();
 		}
@@ -38,46 +39,53 @@ namespace VIPP.Controllers
 		{
 			if(ModelState.IsValid)
 			{
-				marathon.Id = Guid.NewGuid();
-				_context.Marathons.Add(marathon);
-				await _context.SaveChangesAsync();
+				using (var _context = ApplicationDbContext.Create())
+				{
+					marathon.Id = Guid.NewGuid();
+					_context.Marathons.Add(marathon);
+					await _context.SaveChangesAsync();
+				}
 			}
 			return RedirectToAction("Index");
 		}
 
 		[HttpGet]
 		[Authorize(Roles = "admin")]
-		public ActionResult SetMarathonDate()
+		public async Task<ActionResult> SetMarathonDate()
 		{
-			ViewBag.Marathons = new SelectList(_context.Marathons.ToList(), "Id", "Name");
+			using (var _context = ApplicationDbContext.Create())
+			{
+				ViewBag.Marathons = new SelectList(await _context.Marathons.ToListAsync(), "Id", "Name");
+			}
 			return PartialView();
 		}
-		//public async Task<ActionResult> SetMarathonDate()
-		//{
-		//	ViewBag.Marathons = new SelectList(await _context.Marathons.ToListAsync(), "Id", "Name");
-		//	return PartialView();
-		//}
 
 		[HttpPost]
 		public async Task<ActionResult> SetMarathonDate(MarathonDate _marathonDate)
 		{
 			if(ModelState.IsValid)
 			{
-				var id = Guid.NewGuid();
-				DateTime date = new DateTime(_marathonDate.Year, _marathonDate.Month, _marathonDate.Day);
-				MarathonDate marathonDate = new MarathonDate { Id = id, MarathonId = _marathonDate.MarathonId, StartDate = date };
-				_context.MarathonDates.Add(marathonDate);
-				await _context.SaveChangesAsync();
+				using (var _context = ApplicationDbContext.Create())
+				{
+					var id = Guid.NewGuid();
+					DateTime date = new DateTime(_marathonDate.Year, _marathonDate.Month, _marathonDate.Day);
+					MarathonDate marathonDate = new MarathonDate { Id = id, MarathonId = _marathonDate.MarathonId, StartDate = date };
+					_context.MarathonDates.Add(marathonDate);
+					await _context.SaveChangesAsync();
+				}
 			}
 			return RedirectToAction("Index");
 		}
 
 		[HttpGet]
 		[Authorize(Roles = "admin")]
-		public ActionResult AddParticipants()
+		public async Task<ActionResult> AddParticipants()
 		{
-			ViewBag.MarathonDates = new SelectList(_context.MarathonDates.ToList(), "Id", "StartDate");
-			ViewBag.Users = new SelectList(_context.Users.ToList(), "Id", "UserName");
+			using (var _context = ApplicationDbContext.Create())
+			{
+				ViewBag.MarathonDates = new SelectList(await _context.MarathonDates.ToListAsync(), "Id", "StartDate");
+				ViewBag.Users = new SelectList(await _context.Users.ToListAsync(), "Id", "UserName");
+			}
 			return PartialView();
 		}
 
@@ -86,20 +94,26 @@ namespace VIPP.Controllers
 		{
 			if(ModelState.IsValid)
 			{
-				Participant participant = new Participant { Id = Guid.NewGuid(), UserId = _participant.UserId, MarathonDateId = _participant.MarathonDateId };
-				_context.Participants.Add(participant);
-				await _context.SaveChangesAsync();
+				using (var _context = ApplicationDbContext.Create())
+				{
+					Participant participant = new Participant { Id = Guid.NewGuid(), UserId = _participant.UserId, MarathonDateId = _participant.MarathonDateId };
+					_context.Participants.Add(participant);
+					await _context.SaveChangesAsync();
+				}
 			}
 			return RedirectToAction("Index");
 		}
 
 		[HttpPost]
-		public ActionResult ClearSelfEstimationCheckList()
+		public async Task<ActionResult> ClearSelfEstimationCheckList()
 		{
-			_context.Achievements.RemoveRange(_context.Achievements.ToList());
-			_context.Resumes.RemoveRange(_context.Resumes.ToList());
-			_context.Feedbacks.RemoveRange(_context.Feedbacks.ToList());
-			_context.SaveChanges();
+			using (var _context = ApplicationDbContext.Create())
+			{
+				_context.Achievements.RemoveRange(await _context.Achievements.ToListAsync());
+				_context.Resumes.RemoveRange(await _context.Resumes.ToListAsync());
+				_context.Feedbacks.RemoveRange(await _context.Feedbacks.ToListAsync());
+				await _context.SaveChangesAsync();
+			}
 			return RedirectToAction("Index");
 		}
 	}
